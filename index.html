@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AKS SOFTWARE - Khata & Cash Ledger System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .font-mono-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.08); opacity: 1; }
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        .aks-gold-text {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="text-slate-800 bg-slate-50 min-h-screen flex flex-col relative overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+
+    <div id="loadingScreen" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out select-none">
+        <div class="text-center p-8 max-w-md w-full mx-4">
+            <!-- Animated AKS Badge -->
+            <div class="relative w-28 h-28 mx-auto mb-8">
+                <div class="absolute inset-0 rounded-3xl bg-indigo-600/30 blur-2xl animate-pulse-glow"></div>
+                <div class="relative w-28 h-28 bg-slate-900 border-2 border-indigo-500/40 rounded-3xl flex flex-col items-center justify-center shadow-2xl">
+                    <i class="fa-solid fa-book-bookmark text-4xl text-amber-400 mb-1"></i>
+                    <span class="text-[10px] font-black text-indigo-400 tracking-widest uppercase">AKS SYSTEM</span>
+                </div>
+            </div>
+
+            <!-- Brand Header -->
+            <h1 class="text-2xl font-black text-white tracking-tight flex items-center justify-center gap-2">
+                AKS SOFTWARE
+            </h1>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mt-1">Khata & Cash Ledger System</p>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-400 mt-3">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span>System v3.0 Active</span>
+            </div>
+
+            <!-- Progress Bar & Terminal Logs -->
+            <div class="w-full bg-slate-900 rounded-full h-2.5 mt-8 overflow-hidden border border-slate-800 p-0.5 shadow-inner">
+                <div id="loadingProgress" class="h-full bg-gradient-to-r from-indigo-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-300 w-0"></div>
+            </div>
+
+            <div class="flex justify-between items-center mt-3 text-xs font-mono">
+                <span id="loadingStepText" class="text-slate-400 truncate max-w-[260px] text-left">Initializing system...</span>
+                <span id="loadingPercent" class="text-amber-400 font-bold">0%</span>
+            </div>
+
+            <!-- Terminal Output -->
+            <div class="mt-6 p-3 bg-slate-900/90 border border-slate-800/80 rounded-xl text-left font-mono text-[11px] text-slate-400 space-y-1 h-20 overflow-hidden shadow-inner">
+                <div id="termLine1" class="text-slate-500">> System boot requested...</div>
+                <div id="termLine2" class="text-slate-400"></div>
+                <div id="termLine3" class="text-indigo-400 font-semibold"></div>
+            </div>
+        </div>
+    </div>
+
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-30 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <!-- Logo Section -->
+            <div class="flex items-center space-x-3.5">
+                <div class="w-11 h-11 bg-slate-800 border border-slate-700 rounded-2xl flex items-center justify-center shadow-md">
+                    <i class="fa-solid fa-book-bookmark text-2xl text-amber-400"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-lg sm:text-xl font-black tracking-tight text-white">AKS SOFTWARE</h1>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wider">Khata Ledger</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Daily Borrower & Money Transaction Ledger</p>
+                </div>
+            </div>
+            
+            <!-- Quick Action Toolbar with Notification Bell & UPI Settings -->
+            <div class="flex items-center gap-2 flex-wrap justify-center sm:justify-end">
+                <!-- Notification Bell Drawer Toggle -->
+                <button onclick="toggleNotificationsDrawer()" class="relative bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm p-2.5 rounded-xl font-medium transition flex items-center border border-slate-700 shadow-sm" title="Lender Payment Alerts">
+                    <i class="fa-solid fa-bell text-amber-400 text-base"></i>
+                    <span id="notifBadge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white font-mono text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                </button>
+
+                <!-- UPI Payment Settings Button -->
+                <button onclick="openUpiSettingsModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm px-3 py-2 rounded-xl font-medium transition flex items-center gap-1.5 border border-slate-700 shadow-sm">
+                    <i class="fa-solid fa-qrcode text-emerald-400"></i> UPI Settings
+                </button>
+
+                <button onclick="openAddPersonModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm px-3.5 py-2 rounded-xl font-semibold transition flex items-center gap-2 shadow-md hover:shadow-indigo-500/20">
+                    <i class="fa-solid fa-user-plus"></i> Add Borrower
+                </button>
+
+                <button onclick="exportData()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm px-3 py-2 rounded-xl font-medium transition flex items-center gap-1.5 border border-slate-700 shadow-sm">
+                    <i class="fa-solid fa-file-export text-slate-400"></i> Export JSON
+                </button>
+                <label for="importFile" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm px-3 py-2 rounded-xl font-medium transition cursor-pointer flex items-center gap-1.5 border border-slate-700 shadow-sm">
+                    <i class="fa-solid fa-file-import text-slate-400"></i> Import JSON
+                </label>
+                <input type="file" id="importFile" accept=".json" onchange="importData(event)" class="hidden">
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full space-y-6">
+        
+        <!-- Key Financial Summary Statistics -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total Amount Owed -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Amount Owed</p>
+                    <h3 id="statTotalOwed" class="text-2xl font-black text-rose-600 mt-1 font-mono-num">₹0.00</h3>
+                    <p class="text-xs text-slate-400 mt-1">Pending collection back</p>
+                </div>
+                <div class="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 border border-rose-100">
+                    <i class="fa-solid fa-scale-unbalanced text-xl"></i>
+                </div>
+            </div>
+
+            <!-- Total Lent All-Time -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Lent All-Time</p>
+                    <h3 id="statTotalLent" class="text-2xl font-black text-indigo-600 mt-1 font-mono-num">₹0.00</h3>
+                    <p class="text-xs text-slate-400 mt-1">Cumulative cash issued</p>
+                </div>
+                <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-500 border border-indigo-100">
+                    <i class="fa-solid fa-hand-holding-dollar text-xl"></i>
+                </div>
+            </div>
+
+            <!-- Total Received All-Time -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Received All-Time</p>
+                    <h3 id="statTotalRepaid" class="text-2xl font-black text-emerald-600 mt-1 font-mono-num">₹0.00</h3>
+                    <p class="text-xs text-slate-400 mt-1">Collected repayments</p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 border border-emerald-100">
+                    <i class="fa-solid fa-circle-check text-xl"></i>
+                </div>
+            </div>
+
+            <!-- Active vs Settled Borrowers -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Borrowers</p>
+                    <h3 id="statActivePeople" class="text-2xl font-black text-slate-800 mt-1 font-mono-num">0</h3>
+                    <p id="statSettledCount" class="text-xs text-slate-400 mt-1">0 fully settled (₹0 balance)</p>
+                </div>
+                <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 border border-amber-100">
+                    <i class="fa-solid fa-users text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left Side: Borrower Directory (4 Columns) -->
+            <div class="lg:col-span-4 bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <!-- Directory Header & Controls -->
+                <div class="p-4 border-b border-slate-100 bg-slate-50/60 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2 uppercase tracking-wider">
+                            <i class="fa-solid fa-users text-indigo-600"></i> Borrower Directory
+                        </h2>
+                        <span id="peopleCountBadge" class="bg-slate-200 text-slate-700 text-[11px] font-mono font-bold px-2 py-0.5 rounded-full">0</span>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="searchInput" oninput="renderPeopleList()" placeholder="Search by name or phone..." class="w-full pl-9 pr-8 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+                        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Quick Filter Tabs -->
+                    <div class="flex rounded-xl bg-slate-200/60 p-1 text-xs font-semibold">
+                        <button onclick="setFilter('all')" id="filterBtnAll" class="flex-1 py-1.5 text-center rounded-lg transition bg-white text-indigo-600 shadow-xs">All</button>
+                        <button onclick="setFilter('active')" id="filterBtnActive" class="flex-1 py-1.5 text-center rounded-lg transition text-slate-600 hover:text-slate-900">Owes Money</button>
+                        <button onclick="setFilter('settled')" id="filterBtnSettled" class="flex-1 py-1.5 text-center rounded-lg transition text-slate-600 hover:text-slate-900">Settled (₹0)</button>
+                    </div>
+                </div>
+
+                <!-- Borrower Cards Scrollable List -->
+                <div id="peopleList" class="divide-y divide-slate-100 max-h-[580px] overflow-y-auto min-h-[250px]">
+                    <!-- Dynamic borrower list injected via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Right Side: Selected Borrower Ledger Details (8 Columns) -->
+            <div id="detailsPanel" class="lg:col-span-8 bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden min-h-[520px]">
+                <!-- Dynamic borrower profile details injected via JavaScript -->
+            </div>
+        </div>
+
+    </main>
+
+
+    <!-- Modal: Add / Edit Borrower Profile -->
+    <div id="addPersonModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 bg-slate-900 text-white flex justify-between items-center">
+                <h3 id="addPersonModalTitle" class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-amber-400"></i> Register New Borrower
+                </h3>
+                <button onclick="closeAddPersonModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="handleAddPerson(event)" class="p-6 space-y-4">
+                <input type="hidden" id="editPersonId">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Full Name *</label>
+                    <input type="text" id="newPersonName" required placeholder="e.g. Ramesh Patel" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Phone Number (For WhatsApp Reminders)</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">+91</span>
+                        <input type="tel" id="newPersonPhone" placeholder="9876543210" class="w-full pl-12 pr-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Notes / Relationship (Optional)</label>
+                    <input type="text" id="newPersonNote" placeholder="e.g. Shopkeeper, Colleague, Neighbor..." class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                </div>
+                <div id="initialAmountField">
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Initial Borrowed Amount (Optional)</label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-semibold">₹</span>
+                        <input type="number" step="0.01" min="0" id="newPersonInitialAmount" placeholder="0.00" class="w-full pl-8 pr-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-mono-num focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="closeAddPersonModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md transition">Save Borrower</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Lender UPI Payment Settings -->
+    <div id="upiSettingsModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 bg-emerald-800 text-white flex justify-between items-center">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode text-amber-300"></i> Lender UPI Payment Settings
+                </h3>
+                <button onclick="closeUpiSettingsModal()" class="text-slate-300 hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="handleSaveUpiSettings(event)" class="p-6 space-y-4">
+                <p class="text-xs text-slate-500">Configure your personal UPI ID so WhatsApp payment reminders automatically include direct online payment links for GPay, PhonePe, and Paytm.</p>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Your UPI VPA / Handle *</label>
+                    <input type="text" id="settingUpiId" required placeholder="e.g. 9876543210@ybl, username@okaxis" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Payee Name *</label>
+                    <input type="text" id="settingPayeeName" required placeholder="e.g. AKS Store / Amit Kumar" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                </div>
+
+                <div id="upiPreviewBox" class="bg-emerald-50 p-3.5 rounded-xl border border-emerald-200 text-xs text-emerald-900 space-y-1">
+                    <span class="font-bold block flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600"></i> Payment Link Format Preview:</span>
+                    <p class="font-mono text-[11px] text-emerald-800 break-all" id="upiPreviewText">upi://pay?pa=yourname@upi&pn=PayeeName&am=100.00&cu=INR</p>
+                </div>
+
+                <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="closeUpiSettingsModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md transition">Save Settings</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Cash Borrowing or Repayment -->
+    <div id="transactionModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div id="transactionModalHeader" class="px-6 py-4 border-b flex justify-between items-center">
+                <h3 id="transactionModalTitle" class="font-bold text-base flex items-center gap-2"></h3>
+                <button onclick="closeTransactionModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="handleSaveTransaction(event)" class="p-6 space-y-4">
+                <input type="hidden" id="transType">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Amount (₹) *</label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg font-bold">₹</span>
+                        <input type="number" step="0.01" min="0.01" id="transAmount" required placeholder="0.00" class="w-full pl-9 pr-3.5 py-2.5 text-xl font-bold font-mono-num border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Date *</label>
+                        <input type="date" id="transDate" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Payment Mode</label>
+                        <select id="transMode" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="Cash">Cash</option>
+                            <option value="UPI Link / QR">UPI Link / QR</option>
+                            <option value="GPay">GPay</option>
+                            <option value="PhonePe">PhonePe</option>
+                            <option value="Paytm">Paytm</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Notes / Reason (Optional)</label>
+                    <input type="text" id="transNote" placeholder="e.g. Daily tea allowance, Sunday settlement..." class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                </div>
+                <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="closeTransactionModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">Cancel</button>
+                    <button type="submit" id="transSubmitBtn" class="px-5 py-2 text-xs font-bold text-white rounded-xl shadow-md transition">Save Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="reminderModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 bg-emerald-700 text-white flex justify-between items-center">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-xl text-amber-300"></i> WhatsApp Reminder with UPI Payment Link
+                </h3>
+                <button onclick="closeReminderModal()" class="text-slate-300 hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="bg-emerald-50 p-3.5 rounded-xl border border-emerald-200/80 flex items-center justify-between text-xs">
+                    <div>
+                        <span class="text-slate-500 block font-medium">Borrower:</span>
+                        <span id="reminderBorrowerName" class="font-bold text-slate-800 text-sm">--</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-slate-500 block font-medium">Pending Due Amount:</span>
+                        <span id="reminderBorrowerAmount" class="font-extrabold text-rose-600 text-sm font-mono-num">₹0.00</span>
+                    </div>
+                </div>
+
+                <!-- Template Selector -->
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Select Reminder Preset:</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="setReminderTemplate('friendly')" id="tplBtnFriendly" class="px-3 py-2 text-xs font-bold rounded-xl border border-emerald-600 bg-emerald-50 text-emerald-800 transition">
+                            😊 Friendly
+                        </button>
+                        <button type="button" onclick="setReminderTemplate('paymentLink')" id="tplBtnPaymentLink" class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 transition">
+                            📲 Direct UPI Link
+                        </button>
+                        <button type="button" onclick="setReminderTemplate('urgent')" id="tplBtnUrgent" class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 transition">
+                            ⚠️ Firm / Due Today
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Editable Message Text Box -->
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">WhatsApp Message (Includes Clickable UPI Link):</label>
+                    <textarea id="reminderTextOutput" rows="5" class="w-full p-3 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-medium text-slate-800"></textarea>
+                </div>
+
+                <div class="pt-2 flex items-center justify-between gap-2 border-t border-slate-100">
+                    <button type="button" onclick="copyReminderToClipboard()" class="px-3.5 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-copy"></i> Copy Text
+                    </button>
+                    <button type="button" onclick="sendWhatsAppDirect()" class="px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md transition flex items-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-base"></i> Send on WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal Drawer: Lender Alerts & Activity History -->
+    <div id="notificationsDrawer" class="fixed inset-y-0 right-0 max-w-sm w-full bg-white shadow-2xl z-50 border-l border-slate-200 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+            <h3 class="font-bold text-sm flex items-center gap-2">
+                <i class="fa-solid fa-bell text-amber-400"></i> Lender Payment Alerts
+            </h3>
+            <div class="flex items-center gap-2">
+                <button onclick="clearAllNotifications()" class="text-[11px] text-slate-400 hover:text-white underline">Clear All</button>
+                <button onclick="toggleNotificationsDrawer()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-3 bg-amber-50 border-b border-amber-200/80 text-[11px] text-amber-900 flex items-center justify-between">
+            <span>Browser Push Alerts Status:</span>
+            <button onclick="requestBrowserNotificationPermission()" id="pushPermBtn" class="px-2 py-1 bg-amber-600 text-white font-bold rounded-lg text-[10px]">Enable Push</button>
+        </div>
+
+        <div id="notificationsList" class="divide-y divide-slate-100 overflow-y-auto flex-grow p-2 space-y-1">
+            <!-- Dynamic notifications injected via JS -->
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal (No native confirm() window used) -->
+    <div id="confirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center space-y-4">
+            <div class="w-12 h-12 bg-rose-100 rounded-2xl text-rose-600 flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h4 id="confirmModalTitle" class="font-bold text-slate-800 text-base">Are you sure?</h4>
+                <p id="confirmModalMsg" class="text-xs text-slate-500 mt-1">This action cannot be undone.</p>
+            </div>
+            <div class="flex justify-center gap-3 pt-2">
+                <button onclick="closeConfirmModal(false)" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-200 transition">Cancel</button>
+                <button id="confirmModalActionBtn" onclick="executeConfirmAction()" class="px-4 py-2 bg-rose-600 text-white text-xs font-bold rounded-xl hover:bg-rose-700 shadow-md transition">Confirm Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Message -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 translate-y-5 pointer-events-none z-50 border border-slate-800">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <span id="toastMsg" class="text-xs font-semibold">Notification</span>
+    </div>
+
+    <script>
+        /* Application Storage Keys & State Variables */
+        const STORAGE_KEY = 'aks_khata_ledger_v3';
+        const SETTINGS_KEY = 'aks_khata_settings_v1';
+        const NOTIF_KEY = 'aks_khata_notifications_v1';
+
+        let appData = { people: [] };
+        let appSettings = { upiId: 'akssoftware@upi', payeeName: 'AKS Software Store' };
+        let appNotifications = [];
+
+        let currentSelectedPersonId = null;
+        let currentFilter = 'all';
+        let currentTemplateType = 'friendly';
+        let pendingConfirmCallback = null;
+
+        /* WEB AUDIO API SYNTHESIZER FOR LENDER PAYMENT CHIME */
+        function playPaymentChime() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const audioCtx = new AudioCtx();
+                const now = audioCtx.currentTime;
+
+                // High Chime Note 1 (E5 - 659.25Hz)
+                const osc1 = audioCtx.createOscillator();
+                const gain1 = audioCtx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(659.25, now);
+                gain1.gain.setValueAtTime(0.15, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                osc1.connect(gain1);
+                gain1.connect(audioCtx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.3);
+
+                // High Chime Note 2 (B5 - 987.77Hz)
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(987.77, now + 0.12);
+                gain2.gain.setValueAtTime(0.2, now + 0.12);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.start(now + 0.12);
+                osc2.stop(now + 0.5);
+            } catch (e) {
+                console.log("Audio Context not triggered");
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            runAksBootSequence();
+            loadSettings();
+            loadNotifications();
+            loadData();
+            renderDashboardStats();
+            renderPeopleList();
+            renderPersonDetails();
+            checkNotificationPermissionStatus();
+        });
+
+        /* REALISTIC SPLASH SCREEN BOOT SEQUENCE */
+        function runAksBootSequence() {
+            const progressBar = document.getElementById('loadingProgress');
+            const percentText = document.getElementById('loadingPercent');
+            const stepText = document.getElementById('loadingStepText');
+            const loadingScreen = document.getElementById('loadingScreen');
+            const line2 = document.getElementById('termLine2');
+            const line3 = document.getElementById('termLine3');
+
+            const steps = [
+                { pct: 15, text: "Loading local storage vault...", term2: "> Storage partition mounted.", term3: "> Vault OK." },
+                { pct: 45, text: "Initializing Khata ledger engine...", term2: "> Parsing borrower balance sheets...", term3: "> Audit totals verified." },
+                { pct: 75, text: "Syncing Lender UPI Gateway...", term2: "> Configuring payment links & audio chime...", term3: "> UPI Gateway ready." },
+                { pct: 100, text: "AKS SOFTWARE Ledger ready.", term2: "> System status: ONLINE", term3: "> Launching dashboard..." }
+            ];
+
+            let stepIdx = 0;
+            const interval = setInterval(() => {
+                if (stepIdx < steps.length) {
+                    const current = steps[stepIdx];
+                    if (progressBar) progressBar.style.width = current.pct + '%';
+                    if (percentText) percentText.innerText = current.pct + '%';
+                    if (stepText) stepText.innerText = current.text;
+                    if (line2) line2.innerText = current.term2;
+                    if (line3) line3.innerText = current.term3;
+                    stepIdx++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        if (loadingScreen) {
+                            loadingScreen.classList.add('opacity-0', 'pointer-events-none');
+                        }
+                    }, 350);
+                }
+            }, 200);
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            } catch (e) {
+                console.error("Error saving appData", e);
+            }
+        }
+
+        function loadSettings() {
+            try {
+                const raw = localStorage.getItem(SETTINGS_KEY);
+                if (raw) appSettings = JSON.parse(raw);
+            } catch (e) {}
+        }
+
+        function saveSettings() {
+            try {
+                localStorage.setItem(SETTINGS_KEY, JSON.stringify(appSettings));
+            } catch (e) {}
+        }
+
+        function loadNotifications() {
+            try {
+                const raw = localStorage.getItem(NOTIF_KEY);
+                if (raw) appNotifications = JSON.parse(raw);
+            } catch (e) {
+                appNotifications = [];
+            }
+            renderNotificationsDrawer();
+        }
+
+        function saveNotifications() {
+            try {
+                localStorage.setItem(NOTIF_KEY, JSON.stringify(appNotifications));
+            } catch (e) {}
+            renderNotificationsDrawer();
+        }
+
+        function loadData() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    appData = JSON.parse(raw);
+                } else {
+                    // Populate initial sample data
+                    appData = {
+                        people: [
+                            {
+                                id: 'p_101',
+                                name: 'Ramesh Patel',
+                                phone: '9876543210',
+                                note: 'Grocery Supplier',
+                                createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
+                                transactions: [
+                                    { id: 't_1', type: 'borrow', amount: 1500.00, mode: 'Cash', date: getFormattedDate(-6), note: 'Weekly stock purchase advance' },
+                                    { id: 't_2', type: 'borrow', amount: 500.00, mode: 'UPI Link / QR', date: getFormattedDate(-3), note: 'Transport cab fare' },
+                                    { id: 't_3', type: 'repay', amount: 1000.00, mode: 'GPay', date: getFormattedDate(-1), note: 'Partial repayment' }
+                                ]
+                            },
+                            {
+                                id: 'p_102',
+                                name: 'Anita Sharma',
+                                phone: '9812345678',
+                                note: 'Office Colleague',
+                                createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
+                                transactions: [
+                                    { id: 't_4', type: 'borrow', amount: 800.00, mode: 'PhonePe', date: getFormattedDate(-10), note: 'Emergency lunch bill' },
+                                    { id: 't_5', type: 'repay', amount: 800.00, mode: 'UPI Link / QR', date: getFormattedDate(-2), note: 'Cleared full balance via UPI' }
+                                ]
+                            }
+                        ]
+                    };
+                    saveData();
+                }
+            } catch (e) {
+                appData = { people: [] };
+            }
+        }
+
+        function getFormattedDate(offsetDays = 0) {
+            const d = new Date();
+            d.setDate(d.getDate() + offsetDays);
+            return d.toISOString().split('T')[0];
+        }
+
+        function calculateTotals(person) {
+            let totalBorrowed = 0;
+            let totalRepaid = 0;
+            if (person && person.transactions) {
+                person.transactions.forEach(t => {
+                    const amt = parseFloat(t.amount) || 0;
+                    if (t.type === 'borrow') totalBorrowed += amt;
+                    else if (t.type === 'repay') totalRepaid += amt;
+                });
+            }
+            const remainingBalance = Math.max(0, totalBorrowed - totalRepaid);
+            return {
+                totalBorrowed,
+                totalRepaid,
+                remainingBalance,
+                isSettled: remainingBalance <= 0.001
+            };
+        }
+
+        function showToast(message, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = message;
+            toastIcon.className = isSuccess ? "fa-solid fa-circle-check text-emerald-400 text-base" : "fa-solid fa-circle-exclamation text-rose-400 text-base";
+
+            toast.classList.remove('opacity-0', 'translate-y-5', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-5', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function triggerLenderPaymentAlert(borrowerName, amount, mode) {
+            const title = "🎉 Repayment Received!";
+            const body = `Received ₹${parseFloat(amount).toFixed(2)} from ${borrowerName} (${mode})`;
+
+            // 1. Play Web Audio Chime
+            playPaymentChime();
+
+            // 2. Display Toast
+            showToast(body);
+
+            // 3. Log to Lender Notifications History
+            appNotifications.unshift({
+                id: 'n_' + Date.now(),
+                title,
+                body,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                date: getFormattedDate(0),
+                read: false
+            });
+            saveNotifications();
+
+            // 4. Native Browser Push Notification
+            if ("Notification" in window && Notification.permission === "granted") {
+                try {
+                    new Notification(title, {
+                        body: body,
+                        icon: "https://cdn-icons-png.flaticon.com/512/10149/10149458.png"
+                    });
+                } catch (e) {}
+            }
+        }
+
+        function requestBrowserNotificationPermission() {
+            if (!("Notification" in window)) {
+                showToast("Desktop notifications are not supported in this browser", false);
+                return;
+            }
+            Notification.requestPermission().then(permission => {
+                checkNotificationPermissionStatus();
+                if (permission === "granted") {
+                    showToast("Native Lender Payment Notifications Enabled!");
+                } else {
+                    showToast("Notification permission was denied.", false);
+                }
+            });
+        }
+
+        function checkNotificationPermissionStatus() {
+            const btn = document.getElementById('pushPermBtn');
+            if (!btn) return;
+            if (!("Notification" in window)) {
+                btn.innerText = "Not Supported";
+                btn.className = "px-2 py-1 bg-slate-400 text-white font-bold rounded-lg text-[10px]";
+                return;
+            }
+            if (Notification.permission === "granted") {
+                btn.innerText = "Enabled ✓";
+                btn.className = "px-2 py-1 bg-emerald-600 text-white font-bold rounded-lg text-[10px]";
+            } else {
+                btn.innerText = "Enable Push";
+                btn.className = "px-2 py-1 bg-amber-600 text-white font-bold rounded-lg text-[10px]";
+            }
+        }
+
+        function toggleNotificationsDrawer() {
+            const drawer = document.getElementById('notificationsDrawer');
+            drawer.classList.toggle('translate-x-full');
+            // Mark as read
+            appNotifications.forEach(n => n.read = true);
+            saveNotifications();
+        }
+
+        function renderNotificationsDrawer() {
+            const list = document.getElementById('notificationsList');
+            const badge = document.getElementById('notifBadge');
+
+            const unreadCount = appNotifications.filter(n => !n.read).length;
+            if (badge) {
+                if (unreadCount > 0) {
+                    badge.innerText = unreadCount;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+
+            if (!list) return;
+            if (appNotifications.length === 0) {
+                list.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No payment alerts recorded yet.</div>`;
+                return;
+            }
+
+            list.innerHTML = appNotifications.map(n => `
+                <div class="p-3 bg-white rounded-xl border border-slate-100 shadow-2xs space-y-1">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-xs text-emerald-700 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check text-emerald-500"></i> ${escapeHtml(n.title)}
+                        </span>
+                        <span class="text-[10px] font-mono text-slate-400">${n.time}</span>
+                    </div>
+                    <p class="text-xs text-slate-700 font-medium">${escapeHtml(n.body)}</p>
+                </div>
+            `).join('');
+        }
+
+        function clearAllNotifications() {
+            appNotifications = [];
+            saveNotifications();
+            showToast("Notifications cleared.");
+        }
+
+        function renderDashboardStats() {
+            let totalOwed = 0, totalLent = 0, totalRepaid = 0, activeCount = 0, settledCount = 0;
+
+            appData.people.forEach(p => {
+                const totals = calculateTotals(p);
+                totalLent += totals.totalBorrowed;
+                totalRepaid += totals.totalRepaid;
+                if (totals.remainingBalance > 0) {
+                    totalOwed += totals.remainingBalance;
+                    activeCount++;
+                } else {
+                    settledCount++;
+                }
+            });
+
+            document.getElementById('statTotalOwed').innerText = `₹${totalOwed.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('statTotalLent').innerText = `₹${totalLent.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('statTotalRepaid').innerText = `₹${totalRepaid.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('statActivePeople').innerText = activeCount;
+            document.getElementById('statSettledCount').innerText = `${settledCount} fully settled (₹0 balance)`;
+            document.getElementById('peopleCountBadge').innerText = appData.people.length;
+        }
+
+        function setFilter(filterType) {
+            currentFilter = filterType;
+            const activeClass = "bg-white text-indigo-600 shadow-xs";
+            const inactiveClass = "text-slate-600 hover:text-slate-900";
+
+            document.getElementById('filterBtnAll').className = `flex-1 py-1.5 text-center rounded-lg transition ${filterType === 'all' ? activeClass : inactiveClass}`;
+            document.getElementById('filterBtnActive').className = `flex-1 py-1.5 text-center rounded-lg transition ${filterType === 'active' ? activeClass : inactiveClass}`;
+            document.getElementById('filterBtnSettled').className = `flex-1 py-1.5 text-center rounded-lg transition ${filterType === 'settled' ? activeClass : inactiveClass}`;
+
+            renderPeopleList();
+        }
+
+        function renderPeopleList() {
+            const container = document.getElementById('peopleList');
+            const searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+            document.getElementById('clearSearchBtn').classList.toggle('hidden', searchQuery.length === 0);
+
+            let filtered = appData.people.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchQuery) || 
+                                      (p.phone && p.phone.includes(searchQuery)) || 
+                                      (p.note && p.note.toLowerCase().includes(searchQuery));
+                const totals = calculateTotals(p);
+                if (!matchesSearch) return false;
+                if (currentFilter === 'active') return totals.remainingBalance > 0;
+                if (currentFilter === 'settled') return totals.remainingBalance <= 0;
+                return true;
+            });
+
+            // Sort by highest remaining balance
+            filtered.sort((a, b) => calculateTotals(b).remainingBalance - calculateTotals(a).remainingBalance);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">No matching borrowers found.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(p => {
+                const totals = calculateTotals(p);
+                const isSelected = p.id === currentSelectedPersonId;
+                return `
+                    <div onclick="selectPerson('${p.id}')" class="p-3.5 cursor-pointer transition hover:bg-slate-50 flex items-center justify-between ${isSelected ? 'bg-indigo-50/80 border-l-4 border-indigo-600' : ''}">
+                        <div class="min-w-0 pr-2">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-slate-800 text-xs truncate">${escapeHtml(p.name)}</span>
+                                ${totals.isSettled ? 
+                                    '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">Settled ₹0</span>' : 
+                                    ''
+                                }
+                            </div>
+                            <div class="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                                ${p.phone ? `<span><i class="fa-solid fa-phone text-[10px]"></i> +91 ${escapeHtml(p.phone)}</span>` : ''}
+                                ${p.note ? `<span class="truncate">• ${escapeHtml(p.note)}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <span class="block font-black text-xs font-mono-num ${totals.remainingBalance > 0 ? 'text-rose-600' : 'text-emerald-600'}">₹${totals.remainingBalance.toFixed(2)}</span>
+                            <span class="text-[10px] text-slate-400 block">${totals.remainingBalance > 0 ? 'Pending' : 'Cleared'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            renderPeopleList();
+        }
+
+        function selectPerson(id) {
+            currentSelectedPersonId = id;
+            renderPeopleList();
+            renderPersonDetails();
+        }
+
+        function renderPersonDetails() {
+            const panel = document.getElementById('detailsPanel');
+            const person = appData.people.find(p => p.id === currentSelectedPersonId);
+
+            if (!person) {
+                panel.innerHTML = `
+                    <div class="p-12 text-center flex flex-col items-center justify-center min-h-[480px]">
+                        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-4 border border-slate-200">
+                            <i class="fa-solid fa-book-open text-3xl"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-700">No Borrower Selected</h3>
+                        <p class="text-slate-400 text-xs max-w-sm mt-1 mb-6">Select a borrower from the directory on the left or register a new person to record borrowings and repayments.</p>
+                        <button onclick="openAddPersonModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                            <i class="fa-solid fa-user-plus"></i> Register New Borrower
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const totals = calculateTotals(person);
+            const sortedTransactions = [...(person.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            panel.innerHTML = `
+                <!-- Profile Header -->
+                <div class="p-6 border-b border-slate-100 bg-slate-50/60 flex flex-col md:flex-row justify-between md:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <h2 class="text-xl font-black text-slate-800">${escapeHtml(person.name)}</h2>
+                            ${totals.isSettled ? 
+                                `<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-check"></i> Settled (₹0)</span>` : 
+                                `<span class="bg-rose-100 text-rose-800 text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-clock"></i> Active Balance</span>`
+                            }
+                        </div>
+                        <div class="flex items-center gap-3 text-xs text-slate-500 mt-1">
+                            ${person.phone ? `<span class="font-mono font-medium text-slate-700"><i class="fa-solid fa-phone text-emerald-600 mr-1"></i> +91 ${escapeHtml(person.phone)}</span>` : '<span class="italic text-slate-400">No phone number saved</span>'}
+                            ${person.note ? `<span>• ${escapeHtml(person.note)}</span>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Action Toolbar -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button onclick="openTransactionModal('borrow')" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus"></i> + Lend Cash
+                        </button>
+                        <button onclick="openTransactionModal('repay')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-hand-holding-dollar"></i> - Record Repayment
+                        </button>
+                        <button onclick="openReminderModal()" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
+                            <i class="fa-brands fa-whatsapp text-sm text-amber-300"></i> WhatsApp & UPI Link
+                        </button>
+                        <button onclick="openEditPersonModal('${person.id}')" class="p-2 text-slate-500 hover:text-indigo-600 bg-white border border-slate-200 rounded-xl transition shadow-2xs">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="confirmDeletePerson('${person.id}')" class="p-2 text-slate-400 hover:text-rose-600 bg-white border border-slate-200 rounded-xl transition shadow-2xs">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ledger Quick Numbers Summary -->
+                <div class="p-6 bg-slate-50/30 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200/80">
+                        <span class="text-xs text-slate-500 font-bold uppercase block">Total Borrowed</span>
+                        <span class="text-lg font-black text-slate-800 mt-1 block font-mono-num">₹${totals.totalBorrowed.toFixed(2)}</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200/80">
+                        <span class="text-xs text-slate-500 font-bold uppercase block">Total Repaid</span>
+                        <span class="text-lg font-black text-emerald-600 mt-1 block font-mono-num">₹${totals.totalRepaid.toFixed(2)}</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200/80">
+                        <span class="text-xs font-bold uppercase block ${totals.remainingBalance > 0 ? 'text-rose-600' : 'text-emerald-700'}">Net Pending Balance</span>
+                        <span class="text-xl font-black mt-1 block font-mono-num ${totals.remainingBalance > 0 ? 'text-rose-600' : 'text-emerald-600'}">₹${totals.remainingBalance.toFixed(2)}</span>
+                    </div>
+                </div>
+
+                <!-- Transaction Audit Trail Ledger Table -->
+                <div class="p-6">
+                    <h3 class="font-bold text-slate-800 text-xs uppercase tracking-wider mb-4 flex items-center justify-between">
+                        <span><i class="fa-solid fa-receipt text-indigo-500 mr-2"></i> Detailed Audit Ledger</span>
+                        <span class="text-slate-400 font-mono font-normal">${sortedTransactions.length} entries recorded</span>
+                    </h3>
+
+                    ${sortedTransactions.length === 0 ? `
+                        <div class="text-center p-8 border border-dashed border-slate-200 rounded-2xl text-slate-400 text-xs">
+                            No ledger history found for ${escapeHtml(person.name)}. Use '+ Lend Cash' to add daily borrowing.
+                        </div>
+                    ` : `
+                        <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase border-b border-slate-200">
+                                        <th class="py-3 px-4">Date</th>
+                                        <th class="py-3 px-4">Type</th>
+                                        <th class="py-3 px-4">Mode</th>
+                                        <th class="py-3 px-4">Note / Description</th>
+                                        <th class="py-3 px-4 text-right">Amount (₹)</th>
+                                        <th class="py-3 px-4 text-center">Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-xs">
+                                    ${sortedTransactions.map(t => `
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="py-3.5 px-4 font-mono font-medium text-slate-700 whitespace-nowrap">${t.date}</td>
+                                            <td class="py-3.5 px-4 whitespace-nowrap">
+                                                ${t.type === 'borrow' ? 
+                                                    '<span class="text-[10px] font-bold text-rose-700 bg-rose-100 px-2.5 py-0.5 rounded-md uppercase">Lent (Borrow)</span>' : 
+                                                    '<span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-md uppercase">Repaid (Return)</span>'
+                                                }
+                                            </td>
+                                            <td class="py-3.5 px-4 text-slate-600 font-medium whitespace-nowrap">${escapeHtml(t.mode || 'Cash')}</td>
+                                            <td class="py-3.5 px-4 text-slate-600 max-w-xs truncate">${t.note ? escapeHtml(t.note) : '<span class="text-slate-300 italic">No note</span>'}</td>
+                                            <td class="py-3.5 px-4 text-right font-black font-mono-num whitespace-nowrap ${t.type === 'borrow' ? 'text-rose-600' : 'text-emerald-600'}">
+                                                ${t.type === 'borrow' ? '+' : '-'}₹${parseFloat(t.amount).toFixed(2)}
+                                            </td>
+                                            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                                <button onclick="confirmDeleteTransaction('${person.id}', '${t.id}')" class="text-slate-300 hover:text-rose-600 p-1 transition">
+                                                    <i class="fa-solid fa-xmark text-sm"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        function generateUpiLink(amount) {
+            const upiId = appSettings.upiId || 'akssoftware@upi';
+            const payeeName = appSettings.payeeName || 'AKS Software';
+            const amtStr = parseFloat(amount).toFixed(2);
+            const note = encodeURIComponent('Khata Ledger Repayment');
+            return `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${amtStr}&cu=INR&tn=${note}`;
+        }
+
+        function openReminderModal() {
+            if (!currentSelectedPersonId) return;
+            const person = appData.people.find(p => p.id === currentSelectedPersonId);
+            if (!person) return;
+
+            const totals = calculateTotals(person);
+
+            document.getElementById('reminderBorrowerName').innerText = person.name + (person.phone ? ` (+91 ${person.phone})` : ' (No phone saved)');
+            document.getElementById('reminderBorrowerAmount').innerText = `₹${totals.remainingBalance.toFixed(2)}`;
+
+            document.getElementById('reminderModal').classList.remove('hidden');
+            setReminderTemplate('friendly');
+        }
+
+        function closeReminderModal() {
+            document.getElementById('reminderModal').classList.add('hidden');
+        }
+
+        function setReminderTemplate(tplType) {
+            currentTemplateType = tplType;
+            const person = appData.people.find(p => p.id === currentSelectedPersonId);
+            if (!person) return;
+
+            const totals = calculateTotals(person);
+            const amtStr = `₹${totals.remainingBalance.toFixed(2)}`;
+            const upiLink = generateUpiLink(totals.remainingBalance);
+
+            const activeBtnClass = "px-3 py-2 text-xs font-bold rounded-xl border border-emerald-600 bg-emerald-50 text-emerald-800 transition";
+            const inactiveBtnClass = "px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 transition";
+
+            document.getElementById('tplBtnFriendly').className = tplType === 'friendly' ? activeBtnClass : inactiveBtnClass;
+            document.getElementById('tplBtnPaymentLink').className = tplType === 'paymentLink' ? activeBtnClass : inactiveBtnClass;
+            document.getElementById('tplBtnUrgent').className = tplType === 'urgent' ? activeBtnClass : inactiveBtnClass;
+
+            let text = "";
+            if (tplType === 'friendly') {
+                text = `Hi ${person.name}, hope you are doing well! Just a friendly reminder regarding your pending Khata balance of ${amtStr}.\n\n📲 Pay online via GPay/PhonePe/Paytm using this UPI Link:\n${upiLink}\n\nUPI ID: ${appSettings.upiId}\nPayee: ${appSettings.payeeName}\n\nThank you!`;
+            } else if (tplType === 'paymentLink') {
+                text = `Dear ${person.name},\n\nYour total Khata due is ${amtStr}.\n\nClick the link below to pay directly via GPay / PhonePe / Paytm / BHIM:\n👉 ${upiLink}\n\nOr transfer to UPI ID: ${appSettings.upiId} (${appSettings.payeeName}).\n\nPlease let us know once paid.`;
+            } else if (tplType === 'urgent') {
+                text = `ATTENTION ${person.name}: Your pending balance of ${amtStr} is due for payment today.\n\nPlease clear this immediately via UPI:\n${upiLink}\n\nUPI ID: ${appSettings.upiId}\nPayee: ${appSettings.payeeName}`;
+            }
+
+            document.getElementById('reminderTextOutput').value = text;
+        }
+
+        function copyReminderToClipboard() {
+            const text = document.getElementById('reminderTextOutput').value;
+            if (!text) return;
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showToast("Reminder message and UPI Payment Link copied!");
+        }
+
+        function sendWhatsAppDirect() {
+            const text = document.getElementById('reminderTextOutput').value.trim();
+            if (!text) {
+                showToast("Please enter a reminder message first.", false);
+                return;
+            }
+
+            const person = appData.people.find(p => p.id === currentSelectedPersonId);
+            let rawPhone = person && person.phone ? person.phone.trim() : '';
+
+            let cleanPhone = rawPhone.replace(/\D/g, '');
+            if (cleanPhone.length === 10) {
+                cleanPhone = '91' + cleanPhone;
+            }
+
+            let waUrl = '';
+            if (cleanPhone) {
+                waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
+            } else {
+                waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+                showToast("No phone number saved. Opening WhatsApp contact list...");
+            }
+
+            window.open(waUrl, '_blank');
+        }
+
+        function openUpiSettingsModal() {
+            document.getElementById('settingUpiId').value = appSettings.upiId || '';
+            document.getElementById('settingPayeeName').value = appSettings.payeeName || '';
+            updateUpiPreview();
+            document.getElementById('upiSettingsModal').classList.remove('hidden');
+
+            document.getElementById('settingUpiId').oninput = updateUpiPreview;
+            document.getElementById('settingPayeeName').oninput = updateUpiPreview;
+        }
+
+        function updateUpiPreview() {
+            const upiId = document.getElementById('settingUpiId').value || 'yourname@upi';
+            const payee = document.getElementById('settingPayeeName').value || 'PayeeName';
+            document.getElementById('upiPreviewText').innerText = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payee)}&am=100.00&cu=INR`;
+        }
+
+        function closeUpiSettingsModal() {
+            document.getElementById('upiSettingsModal').classList.add('hidden');
+        }
+
+        function handleSaveUpiSettings(e) {
+            e.preventDefault();
+            const upiId = document.getElementById('settingUpiId').value.trim();
+            const payeeName = document.getElementById('settingPayeeName').value.trim();
+
+            if (!upiId || !payeeName) return;
+
+            appSettings.upiId = upiId;
+            appSettings.payeeName = payeeName;
+            saveSettings();
+            closeUpiSettingsModal();
+            showToast("UPI Payment Settings Saved!");
+        }
+
+        function openAddPersonModal() {
+            document.getElementById('editPersonId').value = '';
+            document.getElementById('addPersonModalTitle').innerHTML = `<i class="fa-solid fa-user-plus text-amber-400"></i> Register New Borrower`;
+            document.getElementById('newPersonName').value = '';
+            document.getElementById('newPersonPhone').value = '';
+            document.getElementById('newPersonNote').value = '';
+            document.getElementById('newPersonInitialAmount').value = '';
+            document.getElementById('initialAmountField').classList.remove('hidden');
+            document.getElementById('addPersonModal').classList.remove('hidden');
+        }
+
+        function openEditPersonModal(personId) {
+            const person = appData.people.find(p => p.id === personId);
+            if (!person) return;
+
+            document.getElementById('editPersonId').value = person.id;
+            document.getElementById('addPersonModalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit Borrower Details`;
+            document.getElementById('newPersonName').value = person.name;
+            document.getElementById('newPersonPhone').value = person.phone || '';
+            document.getElementById('newPersonNote').value = person.note || '';
+            document.getElementById('initialAmountField').classList.add('hidden');
+            document.getElementById('addPersonModal').classList.remove('hidden');
+        }
+
+        function closeAddPersonModal() {
+            document.getElementById('addPersonModal').classList.add('hidden');
+        }
+
+        function handleAddPerson(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editPersonId').value;
+            const name = document.getElementById('newPersonName').value.trim();
+            const phone = document.getElementById('newPersonPhone').value.trim();
+            const note = document.getElementById('newPersonNote').value.trim();
+
+            if (!name) return;
+
+            if (editId) {
+                const person = appData.people.find(p => p.id === editId);
+                if (person) {
+                    person.name = name;
+                    person.phone = phone;
+                    person.note = note;
+                    showToast(`Updated borrower "${name}"`);
+                }
+            } else {
+                const initialAmt = parseFloat(document.getElementById('newPersonInitialAmount').value) || 0;
+                const newPersonId = 'p_' + Date.now();
+                const newPerson = {
+                    id: newPersonId,
+                    name,
+                    phone,
+                    note,
+                    createdAt: new Date().toISOString(),
+                    transactions: []
+                };
+
+                if (initialAmt > 0) {
+                    newPerson.transactions.push({
+                        id: 't_' + Date.now(),
+                        type: 'borrow',
+                        amount: initialAmt,
+                        mode: 'Cash',
+                        date: getFormattedDate(0),
+                        note: 'Initial balance'
+                    });
+                }
+
+                appData.people.push(newPerson);
+                currentSelectedPersonId = newPersonId;
+                showToast(`Registered new borrower "${name}"!`);
+            }
+
+            saveData();
+            closeAddPersonModal();
+            renderDashboardStats();
+            renderPeopleList();
+            renderPersonDetails();
+        }
+
+        function openTransactionModal(type) {
+            if (!currentSelectedPersonId) return;
+            const person = appData.people.find(p => p.id === currentSelectedPersonId);
+            if (!person) return;
+
+            document.getElementById('transType').value = type;
+            document.getElementById('transAmount').value = '';
+            document.getElementById('transDate').value = getFormattedDate(0);
+            document.getElementById('transMode').value = type === 'repay' ? 'UPI Link / QR' : 'Cash';
+            document.getElementById('transNote').value = '';
+
+            const header = document.getElementById('transactionModalHeader');
+            const title = document.getElementById('transactionModalTitle');
+            const submitBtn = document.getElementById('transSubmitBtn');
+
+            if (type === 'borrow') {
+                header.className = "px-6 py-4 border-b border-rose-100 bg-rose-50/60 flex justify-between items-center text-rose-800";
+                title.innerHTML = `<i class="fa-solid fa-plus-circle text-rose-600"></i> + Lend Cash to ${escapeHtml(person.name)}`;
+                submitBtn.className = "px-5 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-md transition";
+                submitBtn.innerText = "Save Borrowing";
+            } else {
+                header.className = "px-6 py-4 border-b border-emerald-100 bg-emerald-50/60 flex justify-between items-center text-emerald-800";
+                title.innerHTML = `<i class="fa-solid fa-hand-holding-dollar text-emerald-600"></i> - Record Payment from ${escapeHtml(person.name)}`;
+                submitBtn.className = "px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md transition";
+                submitBtn.innerText = "Save Repayment";
+            }
+
+            document.getElementById('transactionModal').classList.remove('hidden');
+        }
+
+        function closeTransactionModal() {
+            document.getElementById('transactionModal').classList.add('hidden');
+        }
+
+        function handleSaveTransaction(e) {
+            e.preventDefault();
+            const person = appData.people.find(p => p.id === currentSelectedPersonId);
+            if (!person) return;
+
+            const type = document.getElementById('transType').value;
+            const amount = parseFloat(document.getElementById('transAmount').value) || 0;
+            const date = document.getElementById('transDate').value;
+            const mode = document.getElementById('transMode').value;
+            const note = document.getElementById('transNote').value.trim();
+
+            if (amount <= 0 || !date) return;
+
+            person.transactions.push({
+                id: 't_' + Date.now(),
+                type,
+                amount,
+                mode,
+                date,
+                note
+            });
+
+            saveData();
+            closeTransactionModal();
+            renderDashboardStats();
+            renderPeopleList();
+            renderPersonDetails();
+
+            if (type === 'repay') {
+                // Trigger Lender Payment Audio Chime & Push Alert Notification
+                triggerLenderPaymentAlert(person.name, amount, mode);
+            } else {
+                showToast(`Recorded ₹${amount.toFixed(2)} cash issued to ${person.name}`);
+            }
+        }
+
+        /* CUSTOM CONFIRM MODAL (NO ALERT/CONFIRM WINDOWS) */
+        function openCustomConfirm(title, message, callback) {
+            document.getElementById('confirmModalTitle').innerText = title;
+            document.getElementById('confirmModalMsg').innerText = message;
+            pendingConfirmCallback = callback;
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal(shouldExecute = false) {
+            document.getElementById('confirmModal').classList.add('hidden');
+            if (!shouldExecute) pendingConfirmCallback = null;
+        }
+
+        function executeConfirmAction() {
+            if (typeof pendingConfirmCallback === 'function') {
+                pendingConfirmCallback();
+            }
+            closeConfirmModal(false);
+        }
+
+        function confirmDeletePerson(personId) {
+            const person = appData.people.find(p => p.id === personId);
+            if (!person) return;
+
+            openCustomConfirm(
+                `Delete ${person.name}?`,
+                `Are you sure you want to delete ${person.name} and all associated ledger records?`,
+                () => {
+                    appData.people = appData.people.filter(p => p.id !== personId);
+                    if (currentSelectedPersonId === personId) currentSelectedPersonId = null;
+                    saveData();
+                    renderDashboardStats();
+                    renderPeopleList();
+                    renderPersonDetails();
+                    showToast(`Deleted ${person.name}`, false);
+                }
+            );
+        }
+
+        function confirmDeleteTransaction(personId, transId) {
+            const person = appData.people.find(p => p.id === personId);
+            if (!person) return;
+
+            openCustomConfirm(
+                "Delete Transaction?",
+                "Are you sure you want to remove this transaction entry from the audit ledger?",
+                () => {
+                    person.transactions = person.transactions.filter(t => t.id !== transId);
+                    saveData();
+                    renderDashboardStats();
+                    renderPeopleList();
+                    renderPersonDetails();
+                    showToast('Transaction deleted', false);
+                }
+            );
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", `aks_khata_backup_${getFormattedDate(0)}.json`);
+            document.body.appendChild(dl);
+            dl.click();
+            dl.remove();
+            showToast('Exported JSON ledger backup!');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported && Array.isArray(imported.people)) {
+                        appData = imported;
+                        saveData();
+                        currentSelectedPersonId = appData.people.length > 0 ? appData.people[0].id : null;
+                        renderDashboardStats();
+                        renderPeopleList();
+                        renderPersonDetails();
+                        showToast('Ledger backup imported successfully!');
+                    }
+                } catch (err) {
+                    showToast('Invalid JSON file format.', false);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
